@@ -17,15 +17,21 @@ func main() {
 	}
 
 	// DB
-	_, dbConnection := db.NewDatabase()
+	gormDB, dbConnection := db.NewDatabase()
 	defer dbConnection.Close()
+
+	// Migrations (Auto)
+	err := db.RunMigrations(gormDB)
+	if err != nil {
+		fmt.Println("Cannot run migrations", err)
+	}
 
 	// Init Repos
 	// usersRepo := repos.NewUsersRepo(gormClient)
 
 	// Routes
 	router := router.SetUpRouter()
-	port := utils.GetEnvOrDefault("port", "8080")
+	port := utils.GetEnvOrDefault("port", "3000")
 	if err := http.ListenAndServe(":"+port, router); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

@@ -1,0 +1,45 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, generated with `go test -c`
+*.test
+
+# Output of the go build command
+# For projects that use Go modules, this typically means the main executable
+# generated in the current directory, or in a `bin` directory.
+# If you build your executables into a specific `bin` directory, add it here.
+# Example:
+# bin/
+# myprogram
+
+# Go module cache and dependencies
+# The `go mod vendor` command creates a `vendor` directory for vendored dependencies.
+# The `go build` and `go run` commands will populate the Go module cache.
+# If you are not using `go mod vendor`, you might not need to ignore `vendor/`.
+vendor/
+
+# Dependencies for Go modules (if not vendored)
+# This is typically handled by `go.mod` and `go.sum` and the Go module cache,
+# but if you have other dependency management tools or specific needs,
+# you might need to add more here.
+# For example, if you use a tool that generates a `Godeps` directory:
+# Godeps/
+
+# IDE and editor specific files
+.idea/
+.vscode/
+*.swp
+*.bak
+*~
+.DS_Store
+
+# Log files and temporary files
+*.log
+tmp/
+
+# Env
+.env
+env.*
