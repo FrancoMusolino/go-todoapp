@@ -4,21 +4,21 @@ import (
 	"context"
 
 	"github.com/FrancoMusolino/go-todoapp/db"
-	models "github.com/FrancoMusolino/go-todoapp/db/schema"
+	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
 	"gorm.io/gorm"
 )
 
-type UsersRepo struct {
+type UserRepo struct {
 	client *gorm.DB
 }
 
-func NewUsersRepo(client *gorm.DB) *UsersRepo {
-	return &UsersRepo{
+func NewUserRepo(client *gorm.DB) *UserRepo {
+	return &UserRepo{
 		client: client,
 	}
 }
 
-func (r *UsersRepo) CreateUser(user *models.User) (*models.User, error) {
+func (r *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
 	defer cancel()
 

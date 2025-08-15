@@ -26,11 +26,11 @@ docker-dev:
 	@echo "Building Docker image..."
 	@docker compose --profile dev up -d 
 
-# Live Reload
-watch:
-    if not exist "$(GOPATH)\bin\air.exe" (
-        go install github.com/air-verse/air@latest
-    )
-    "$(GOPATH)\bin\air.exe"
+# # Live Reload
+# watch:
+#     if not exist "$(GOPATH)\bin\air.exe" (
+#         go install github.com/air-verse/air@latest
+#     )
+#     "$(GOPATH)\bin\air.exe"
 
-.PHONY: all build run test clean watch
+# .PHONY: all build run test clean watch

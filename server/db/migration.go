@@ -6,5 +6,6 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) error {
+	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 	return db.AutoMigrate(&schema.User{})
 }
