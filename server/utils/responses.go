@@ -3,6 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type ApiError struct {
@@ -33,7 +35,7 @@ func WriteJson[T any](w http.ResponseWriter, status int, v *ApiResponse[T]) {
 }
 
 func WriteError(w http.ResponseWriter, status int, msg string, errors []ApiError) {
-	res := &ApiResponse[interface{}]{
+	res := &ApiResponse[any]{
 		Success:    false,
 		Message:    msg,
 		Data:       nil,
@@ -42,4 +44,20 @@ func WriteError(w http.ResponseWriter, status int, msg string, errors []ApiError
 	}
 
 	WriteJson(w, status, res)
+}
+
+func MapValidationErrors(err validator.ValidationErrors) []ApiError {
+	var validationErrors []ApiError
+	for _, err := range err {
+		fieldName := err.Field()
+		msg := err.Error()
+
+		validationErrors = append(validationErrors, ApiError{
+			Message: msg,
+			Field:   fieldName,
+			Code:    "BODY_VALIDATION",
+		})
+	}
+
+	return validationErrors
 }
