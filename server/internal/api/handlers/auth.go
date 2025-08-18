@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
+	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
 	"github.com/FrancoMusolino/go-todoapp/internal/services"
 	"github.com/FrancoMusolino/go-todoapp/utils"
 	"github.com/go-playground/validator/v10"
@@ -42,16 +43,21 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !utils.PasswordMatchRegex(req.Password) {
+	user, err := h.userService.CreateUser(r.Context(), req)
+	if err != nil {
 		res := utils.ApiResponse[any]{
 			Success: false,
-			Message: "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one number.",
+			Message: err.Error(),
 		}
 
 		utils.WriteJson(w, http.StatusBadRequest, &res)
 		return
 	}
 
-	h.userService.CreateUser(r.Context(), req)
-	utils.WriteJson(w, http.StatusOK, &utils.ApiResponse[any]{})
+	utils.WriteJson(w, http.StatusOK, &utils.ApiResponse[models.User]{
+		Success: true,
+		Message: "User registered",
+		Data:    user,
+	})
+	return
 }
