@@ -10,6 +10,7 @@ import (
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
+	"github.com/FrancoMusolino/go-todoapp/internal/logger"
 	"github.com/FrancoMusolino/go-todoapp/utils"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -22,11 +23,13 @@ type JWTClaims struct {
 }
 type UserService struct {
 	userRepo interfaces.IUsersRepo
+	logger   *logger.Logger
 }
 
 func NewUserService(userRepo interfaces.IUsersRepo) *UserService {
 	return &UserService{
 		userRepo: userRepo,
+		logger:   logger.NewLogger("User Service"),
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
+	"github.com/FrancoMusolino/go-todoapp/internal/logger"
 	"github.com/FrancoMusolino/go-todoapp/internal/services"
 	"github.com/FrancoMusolino/go-todoapp/utils"
 	"github.com/go-playground/validator/v10"
@@ -15,11 +16,13 @@ var validate = validator.New()
 
 type AuthHandler struct {
 	userService *services.UserService
+	logger      *logger.Logger
 }
 
 func NewAuthHandler(userService *services.UserService) *AuthHandler {
 	return &AuthHandler{
 		userService: userService,
+		logger:      logger.NewLogger("Auth Handler"),
 	}
 }
 
@@ -62,6 +65,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req dtos.LoginDto
+	h.logger.IncomingRequest(r, r.Context())
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("JSON decode error: %v", err)
 		utils.WriteError(w, http.StatusBadRequest, "Invalid JSON format", nil)
