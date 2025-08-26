@@ -5,3 +5,14 @@ type RegisterUserDto struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
+
+type LoginDto struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+type LoginResponseDto struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Token    string `json:"token"`
+}

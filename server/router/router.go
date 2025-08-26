@@ -27,6 +27,7 @@ func SetUpRouter(authHandler *handlers.AuthHandler) http.Handler {
 
 	r.Route("/api/auth", func(u chi.Router) {
 		u.Post("/register", authHandler.Register)
+		u.Post("/login", authHandler.Login)
 	})
 
 	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) {
