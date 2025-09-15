@@ -65,7 +65,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req dtos.LoginDto
-	h.logger.IncomingRequest(r, r.Context())
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("JSON decode error: %v", err)

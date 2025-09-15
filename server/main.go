@@ -31,15 +31,18 @@ func main() {
 
 	// Init Repos
 	userRepo := repos.NewUserRepo(gormDB)
+	todoRepo := repos.NewTodoRepo(gormDB)
 
 	// Init Services
 	userService := services.NewUserService(userRepo)
+	todoService := services.NewTodoService(todoRepo)
 
 	// Init Route Handlers
 	authHandler := handlers.NewAuthHandler(userService)
+	todoHandler := handlers.NewTodoHandler(todoService)
 
 	// Routes
-	router := router.SetUpRouter(authHandler)
+	router := router.SetUpRouter(authHandler, todoHandler)
 	port := utils.GetEnvOrDefault("port", "3000")
 	if err := http.ListenAndServe(":"+port, router); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

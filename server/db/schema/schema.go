@@ -12,6 +12,17 @@ type User struct {
 	Email        string    `gorm:"unique"`
 	PasswordHash string
 	Birthday     *time.Time
+	Todos        []Todo
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+}
+
+type Todo struct {
+	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Title       string
+	Description string
+	Order       uint
+	UserID      string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }

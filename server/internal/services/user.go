@@ -22,11 +22,11 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 type UserService struct {
-	userRepo interfaces.IUsersRepo
+	userRepo interfaces.IUserRepo
 	logger   *logger.Logger
 }
 
-func NewUserService(userRepo interfaces.IUsersRepo) *UserService {
+func NewUserService(userRepo interfaces.IUserRepo) *UserService {
 	return &UserService{
 		userRepo: userRepo,
 		logger:   logger.NewLogger("User Service"),
