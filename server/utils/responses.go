@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/FrancoMusolino/go-todoapp/utils/pagination"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -13,19 +14,12 @@ type ApiError struct {
 	Field   string `json:"field"`
 }
 
-type PaginationMetadata struct {
-	PageSize     int `json:"pageSize"`
-	PageNumber   int `json:"pageNumber"`
-	TotalPages   int `json:"totalPages"`
-	TotalRecords int `json:"totalRecords"`
-}
-
 type ApiResponse[T any] struct {
-	Success    bool                `json:"success"`
-	Message    string              `json:"message"`
-	Data       *T                  `json:"data,omitempty"`
-	Pagination *PaginationMetadata `json:"pagination,omitempty"`
-	Errors     []ApiError          `json:"errors,omitempty"`
+	Success    bool                           `json:"success"`
+	Message    string                         `json:"message"`
+	Data       *T                             `json:"data,omitempty"`
+	Pagination *pagination.PaginationMetadata `json:"pagination,omitempty"`
+	Errors     []ApiError                     `json:"errors,omitempty"`
 }
 
 func WriteJson[T any](w http.ResponseWriter, status int, v *ApiResponse[T]) {

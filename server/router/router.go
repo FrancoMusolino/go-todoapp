@@ -34,6 +34,7 @@ func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHa
 	r.Route("/api/todo", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.JWTAuth)
+			r.Get("/todos", todoHandler.GetUserTodos)
 			r.Post("/", todoHandler.CreateTodo)
 		})
 	})

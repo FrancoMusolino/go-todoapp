@@ -7,7 +7,8 @@ import (
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
-	"github.com/FrancoMusolino/go-todoapp/internal/logger"
+	"github.com/FrancoMusolino/go-todoapp/utils/logger"
+	"github.com/FrancoMusolino/go-todoapp/utils/pagination"
 	"github.com/google/uuid"
 )
 
@@ -21,6 +22,17 @@ func NewTodoService(todoRepo interfaces.ITodoRepo) *TodoService {
 		todoRepo: todoRepo,
 		logger:   *logger.NewLogger("Todo Service"),
 	}
+}
+
+func (s *TodoService) GetUserTodos(ctx context.Context) ([]*models.Todo, error) {
+	userID := ctx.Value("userID").(string)
+
+	todos, err := s.todoRepo.GetUserTodos(interfaces.GetUserTodoParams{UserID: userID, PaginationParams: pagination.NewPaginationParams(1, 1)})
+	if err != nil {
+		return nil, err
+	}
+
+	return todos, nil
 }
 
 func (s *TodoService) CreateTodo(ctx context.Context, req dtos.CreateTodoDto) (*models.Todo, error) {

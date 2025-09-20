@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
-	"github.com/FrancoMusolino/go-todoapp/internal/logger"
 	"github.com/FrancoMusolino/go-todoapp/internal/services"
 	"github.com/FrancoMusolino/go-todoapp/utils"
+	"github.com/FrancoMusolino/go-todoapp/utils/logger"
 	"github.com/go-playground/validator/v10"
 )
 

@@ -6,9 +6,11 @@ import (
 	"net/http"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
-	"github.com/FrancoMusolino/go-todoapp/internal/logger"
+	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
 	"github.com/FrancoMusolino/go-todoapp/internal/services"
 	"github.com/FrancoMusolino/go-todoapp/utils"
+	"github.com/FrancoMusolino/go-todoapp/utils/logger"
+	"github.com/FrancoMusolino/go-todoapp/utils/pagination"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -22,6 +24,27 @@ func NewTodoHandler(todoService *services.TodoService) *TodoHandler {
 		todoService: todoService,
 		logger:      logger.NewLogger("Todo Handler"),
 	}
+}
+
+func (h *TodoHandler) GetUserTodos(w http.ResponseWriter, r *http.Request) {
+	todos, err := h.todoService.GetUserTodos(r.Context())
+	if err != nil {
+		res := utils.ApiResponse[any]{
+			Success: false,
+			Message: err.Error(),
+		}
+
+		utils.WriteJson(w, http.StatusBadRequest, &res)
+		return
+	}
+
+	utils.WriteJson(w, http.StatusOK, &utils.ApiResponse[[]*models.Todo]{
+		Success:    true,
+		Message:    "User todos",
+		Data:       &todos,
+		Pagination: pagination.NewPaginationMetadata(1, 1, 2),
+	})
+	return
 }
 
 func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {

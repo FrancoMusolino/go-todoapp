@@ -30,6 +30,16 @@ services:
     profiles:
       - dev
 
+  mailhog:
+    container_name: mailhog_container
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - 1025:1025
+      - 8025:8025
+    profiles:
+      - dev
+
 volumes:
   db_data:
     driver: local

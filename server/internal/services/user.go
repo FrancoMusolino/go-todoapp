@@ -10,8 +10,8 @@ import (
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
-	"github.com/FrancoMusolino/go-todoapp/internal/logger"
 	"github.com/FrancoMusolino/go-todoapp/utils"
+	"github.com/FrancoMusolino/go-todoapp/utils/logger"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
