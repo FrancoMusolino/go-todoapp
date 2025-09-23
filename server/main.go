@@ -21,7 +21,10 @@ func main() {
 		fmt.Println("Cannot load .env file, using env variables")
 	}
 
-	// _ := createMailService()
+	// Mailing
+	mailingJobQueue := make(chan mailing.Message)
+	defer close(mailingJobQueue)
+	go startMailing(mailingJobQueue)
 
 	// DB
 	gormDB, dbConnection := db.NewDatabase()
@@ -53,10 +56,12 @@ func main() {
 	}
 }
 
-func createMailService() mailing.IMailService {
-	port, _ := strconv.Atoi(utils.GetEnv("MAIL_PORT"))
+func startMailing(mailingJobQueue chan mailing.Message) {
+	numWorkers := 3
+	mailingResultsChan := make(chan error)
 
-	return mailing.NewSimpleMailService(
+	port, _ := strconv.Atoi(utils.GetEnv("MAIL_PORT"))
+	mailingService := mailing.NewSimpleMailService(
 		&mailing.MailConfig{
 			Domain:      utils.GetEnv("MAIL_DOMAIN"),
 			Host:        utils.GetEnv("MAIL_DOMAIN"),
@@ -69,4 +74,19 @@ func createMailService() mailing.IMailService {
 		},
 	)
 
+	mailingDispatcher := mailing.NewMailingDispatcher(
+		mailingJobQueue, mailingService, numWorkers, mailingResultsChan,
+	)
+	mailingDispatcher.Run()
+
+	go func() {
+		defer close(mailingResultsChan)
+
+		for {
+			err := <-mailingResultsChan
+			if err != nil {
+				fmt.Println("Cannot send email", err.Error())
+			}
+		}
+	}()
 }
