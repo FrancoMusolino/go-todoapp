@@ -34,10 +34,6 @@ func NewUserService(userRepo interfaces.IUserRepo) *UserService {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req dtos.RegisterUserDto) (*models.User, error) {
-	if !utils.PasswordMatchRegex(req.Password) {
-		return nil, errors.New("Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one number.")
-	}
-
 	_, err := s.userRepo.GetByEmail(req.Email)
 	if err == nil {
 		return nil, errors.New("Email already registered")
@@ -58,10 +54,11 @@ func (s *UserService) CreateUser(ctx context.Context, req dtos.RegisterUserDto) 
 		ID:           uuid.New(),
 		Username:     req.Username,
 		Email:        req.Email,
+		Verified:     false,
 		PasswordHash: passwordHash,
 	}
 
-	_, err = s.userRepo.CreateUser(&user)
+	err = s.userRepo.CreateUser(&user)
 	if err != nil {
 		return nil, errors.New("Cannot register user")
 	}

@@ -7,14 +7,24 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Username     string    `gorm:"unique"`
-	Email        string    `gorm:"unique"`
-	PasswordHash string
-	Birthday     *time.Time
-	Todos        []Todo
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Username          string    `gorm:"unique"`
+	Email             string    `gorm:"unique"`
+	PasswordHash      string
+	Birthday          *time.Time
+	Verified          bool `gorm:"default:false"`
+	VerificationCodes []VerificationCode
+	Todos             []Todo
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type VerificationCode struct {
+	ID        uint `gorm:"primaryKey"`
+	Code      uint
+	UserID    string
+	CreatedAt time.Time
+	ExpiresAt time.Time
 }
 
 type Todo struct {

@@ -19,13 +19,12 @@ func NewUserRepo(client *gorm.DB) *UserRepo {
 	}
 }
 
-func (r *UserRepo) CreateUser(user *models.User) (*models.User, error) {
+func (r *UserRepo) CreateUser(user *models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
 	defer cancel()
 
 	err := gorm.G[models.User](r.client).Create(ctx, user)
-
-	return user, err
+	return err
 }
 
 func (r *UserRepo) GetByEmail(email string) (*models.User, error) {
@@ -39,10 +38,11 @@ func (r *UserRepo) GetByEmail(email string) (*models.User, error) {
 
 	user := &models.User{
 		ID:           existing.ID,
-		Username:     existing.Email,
+		Username:     existing.Username,
 		Email:        existing.Email,
 		PasswordHash: existing.PasswordHash,
 		Birthday:     existing.Birthday,
+		Verified:     existing.Verified,
 		CreatedAt:    existing.CreatedAt,
 		UpdatedAt:    existing.UpdatedAt,
 	}
@@ -61,13 +61,50 @@ func (r *UserRepo) GetByUsername(username string) (*models.User, error) {
 
 	user := &models.User{
 		ID:           existing.ID,
-		Username:     existing.Email,
+		Username:     existing.Username,
 		Email:        existing.Email,
 		PasswordHash: existing.PasswordHash,
 		Birthday:     existing.Birthday,
+		Verified:     existing.Verified,
 		CreatedAt:    existing.CreatedAt,
 		UpdatedAt:    existing.UpdatedAt,
 	}
 
 	return user, nil
+}
+
+func (r *UserRepo) CreateVerificationCode(code *models.VerificationCode) error {
+	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
+	defer cancel()
+
+	err := gorm.G[models.VerificationCode](r.client).Create(ctx, code)
+	return err
+}
+
+func (r *UserRepo) GetLastVerificationCode(userID string) (*models.VerificationCode, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
+	defer cancel()
+
+	existing, err := gorm.G[schema.VerificationCode](r.client).Where("user_id = ?", userID).Order("created_at desc").Take(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	code := &models.VerificationCode{
+		ID:        existing.ID,
+		UserID:    existing.UserID,
+		Code:      existing.Code,
+		CreatedAt: existing.CreatedAt,
+		ExpiresAt: existing.ExpiresAt,
+	}
+
+	return code, nil
+}
+
+func (r *UserRepo) VerifyUser(userID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
+	defer cancel()
+
+	_, err := gorm.G[schema.VerificationCode](r.client).Where("user_id = ?", userID).Update(ctx, "verified", true)
+	return err
 }

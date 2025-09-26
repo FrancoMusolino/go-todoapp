@@ -5,7 +5,10 @@ import (
 )
 
 type IUserRepo interface {
-	CreateUser(u *models.User) (*models.User, error)
+	CreateUser(u *models.User) error
 	GetByEmail(email string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
+	CreateVerificationCode(code *models.VerificationCode) error
+	GetLastVerificationCode(userID string) (*models.VerificationCode, error)
+	VerifyUser(userID string) error
 }
