@@ -15,13 +15,13 @@ import (
 var validate = validator.New()
 
 type AuthHandler struct {
-	userService *services.UserService
+	authService *services.AuthService
 	logger      *logger.Logger
 }
 
-func NewAuthHandler(userService *services.UserService) *AuthHandler {
+func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	return &AuthHandler{
-		userService: userService,
+		authService: authService,
 		logger:      logger.NewLogger("Auth Handler"),
 	}
 }
@@ -45,7 +45,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.userService.CreateUser(r.Context(), req)
+	_, err := h.authService.Register(r.Context(), req)
 	if err != nil {
 		res := utils.ApiResponse[any]{
 			Success: false,
@@ -83,7 +83,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := h.userService.GetToken(r.Context(), req)
+	data, err := h.authService.Login(r.Context(), req)
 	if err != nil {
 		res := utils.ApiResponse[any]{
 			Success: false,

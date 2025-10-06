@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
+	"github.com/google/uuid"
 )
 
 type IUserRepo interface {
@@ -10,5 +11,5 @@ type IUserRepo interface {
 	GetByUsername(username string) (*models.User, error)
 	CreateVerificationCode(code *models.VerificationCode) error
 	GetLastVerificationCode(userID string) (*models.VerificationCode, error)
-	VerifyUser(userID string) error
+	VerifyUser(userID uuid.UUID) error
 }

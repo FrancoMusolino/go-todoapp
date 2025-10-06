@@ -26,7 +26,7 @@ func NewMailingDispatcher(jobQueue chan Message, mailingService IMailService, nu
 }
 
 func (md *MailingDispatcher) Run() {
-	fmt.Printf("Running dispatcher with %v workers\n", md.NumWorkers)
+	fmt.Printf("[Mailing Dispatcher]: Running dispatcher with %v workers\n", md.NumWorkers)
 	for i := 0; i < md.NumWorkers; i++ {
 		worker := NewWorker(i+1, md)
 		go worker.Start()

@@ -36,7 +36,7 @@ func (s *TodoService) GetUserTodos(ctx context.Context) ([]*models.Todo, error) 
 }
 
 func (s *TodoService) CreateTodo(ctx context.Context, req dtos.CreateTodoDto) (*models.Todo, error) {
-	userID := ctx.Value("userID").(string)
+	userID := ctx.Value("userID").(uuid.UUID)
 
 	lastTodoOrder := s.todoRepo.GetTodoLastOrder(userID)
 	todo := models.Todo{

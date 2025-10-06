@@ -43,13 +43,14 @@ func main() {
 	// Init Services
 	userService := services.NewUserService(userRepo)
 	todoService := services.NewTodoService(todoRepo)
+	authService := services.NewAuthService(userService, userRepo)
 
 	// Init Route Handlers
-	authHandler := handlers.NewAuthHandler(userService)
+	authHandler := handlers.NewAuthHandler(authService)
 	todoHandler := handlers.NewTodoHandler(todoService)
 
 	// Routes
-	router := router.SetUpRouter(authHandler, todoHandler)
+	router := router.SetUpRouter(authHandler, todoHandler, userRepo)
 	port := utils.GetEnvOrDefault("port", "3000")
 	if err := http.ListenAndServe(":"+port, router); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

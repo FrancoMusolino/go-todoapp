@@ -6,6 +6,7 @@ import (
 	"github.com/FrancoMusolino/go-todoapp/db"
 	"github.com/FrancoMusolino/go-todoapp/db/schema"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -101,10 +102,10 @@ func (r *UserRepo) GetLastVerificationCode(userID string) (*models.VerificationC
 	return code, nil
 }
 
-func (r *UserRepo) VerifyUser(userID string) error {
+func (r *UserRepo) VerifyUser(userID uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
 	defer cancel()
 
-	_, err := gorm.G[schema.VerificationCode](r.client).Where("user_id = ?", userID).Update(ctx, "verified", true)
+	_, err := gorm.G[schema.VerificationCode](r.client).Where("user_id = ?", userID.String()).Update(ctx, "verified", true)
 	return err
 }

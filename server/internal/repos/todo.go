@@ -7,6 +7,7 @@ import (
 	"github.com/FrancoMusolino/go-todoapp/db/schema"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -36,11 +37,11 @@ func (r *TodoRepo) GetUserTodos(params interfaces.GetUserTodoParams) ([]*models.
 	return todos, nil
 }
 
-func (r *TodoRepo) GetTodoLastOrder(userID string) uint {
+func (r *TodoRepo) GetTodoLastOrder(userID uuid.UUID) uint {
 	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
 	defer cancel()
 
-	todo, err := gorm.G[schema.Todo](r.client).Where("user_id = ?", userID).Order("\"order\"").Take(ctx)
+	todo, err := gorm.G[schema.Todo](r.client).Where("user_id = ?", userID.String()).Order("\"order\"").Take(ctx)
 	if err != nil {
 		return 0
 	}

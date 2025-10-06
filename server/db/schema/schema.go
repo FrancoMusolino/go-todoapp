@@ -22,7 +22,7 @@ type User struct {
 type VerificationCode struct {
 	ID        uint `gorm:"primaryKey"`
 	Code      uint
-	UserID    string
+	UserID    uuid.UUID
 	CreatedAt time.Time
 	ExpiresAt time.Time
 }
@@ -32,7 +32,7 @@ type Todo struct {
 	Title       string
 	Description string
 	Order       uint
-	UserID      string
+	UserID      uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

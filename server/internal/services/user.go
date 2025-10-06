@@ -4,23 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
 	"github.com/FrancoMusolino/go-todoapp/utils"
 	"github.com/FrancoMusolino/go-todoapp/utils/logger"
-	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-type JWTClaims struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	jwt.RegisteredClaims
-}
 type UserService struct {
 	userRepo interfaces.IUserRepo
 	logger   *logger.Logger
@@ -64,39 +56,4 @@ func (s *UserService) CreateUser(ctx context.Context, req dtos.RegisterUserDto) 
 	}
 
 	return &user, nil
-}
-
-func (s *UserService) GetToken(ctx context.Context, req dtos.LoginDto) (*dtos.LoginResponseDto, error) {
-	user, err := s.userRepo.GetByEmail(req.Email)
-	if err != nil {
-		return nil, errors.New("Invalid email or password")
-	}
-
-	err = utils.ComparePasswords(user.PasswordHash, req.Password)
-	if err != nil {
-		log.Printf("Invalid pass %s", err)
-		return nil, errors.New("Invalid email or password")
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, JWTClaims{
-		ID:       user.ID.String(),
-		Username: user.Username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    user.ID.String(),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-		},
-	})
-
-	secret := utils.GetEnv("JWT_SECRET")
-	signed, err := token.SignedString([]byte(secret))
-	if err != nil {
-		log.Printf("UserService")
-		return nil, errors.New("Cannot authenticate the user")
-	}
-
-	return &dtos.LoginResponseDto{
-		ID:       user.ID.String(),
-		Username: user.Username,
-		Token:    signed,
-	}, nil
 }

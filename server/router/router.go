@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/handlers"
+	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/middlewares"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 )
 
-func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHandler) http.Handler {
+func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHandler, userRepo interfaces.IUserRepo) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -31,10 +32,10 @@ func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHa
 		u.Post("/login", authHandler.Login)
 	})
 
-	r.Route("/api/todo", func(r chi.Router) {
+	r.Route("/api/todos", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Use(middlewares.JWTAuth)
-			r.Get("/todos", todoHandler.GetUserTodos)
+			r.Use(middlewares.JWTAuth(userRepo))
+			r.Get("/", todoHandler.GetUserTodos)
 			r.Post("/", todoHandler.CreateTodo)
 		})
 	})
