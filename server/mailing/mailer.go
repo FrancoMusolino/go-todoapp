@@ -22,4 +22,5 @@ type Message struct {
 
 type IMailService interface {
 	SendHTML(m Message) error
+	SendHTMLAsync(m Message)
 }

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/models"
+	"github.com/FrancoMusolino/go-todoapp/mailing"
 	"github.com/FrancoMusolino/go-todoapp/utils"
 	"github.com/FrancoMusolino/go-todoapp/utils/logger"
 	"github.com/golang-jwt/jwt/v5"
@@ -22,16 +24,18 @@ type JWTClaims struct {
 }
 
 type AuthService struct {
-	userService *UserService
-	userRepo    interfaces.IUserRepo
-	logger      *logger.Logger
+	userService    *UserService
+	userRepo       interfaces.IUserRepo
+	mailingService mailing.IMailService
+	logger         *logger.Logger
 }
 
-func NewAuthService(userService *UserService, userRepo interfaces.IUserRepo) *AuthService {
+func NewAuthService(userService *UserService, userRepo interfaces.IUserRepo, mailingService mailing.IMailService) *AuthService {
 	return &AuthService{
-		userService: userService,
-		userRepo:    userRepo,
-		logger:      logger.NewLogger("User Service"),
+		userService:    userService,
+		userRepo:       userRepo,
+		mailingService: mailingService,
+		logger:         logger.NewLogger("User Service"),
 	}
 }
 
@@ -54,6 +58,11 @@ func (as *AuthService) Register(ctx context.Context, req dtos.RegisterUserDto) (
 	}
 
 	as.userRepo.CreateVerificationCode(&code)
+	as.mailingService.SendHTMLAsync(mailing.Message{
+		ToAddresses: user.Email,
+		Subject:     "Verificación de Cuenta",
+		Body:        fmt.Sprintf("El código de verificación es: %d", code.Code),
+	})
 
 	return user, nil
 }
@@ -68,6 +77,10 @@ func (s *AuthService) Login(ctx context.Context, req dtos.LoginDto) (*dtos.Login
 	if err != nil {
 		log.Printf("Invalid pass %s", err)
 		return nil, errors.New("Invalid email or password")
+	}
+
+	if !user.IsVerified() {
+		return nil, errors.New("User is not verified")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, JWTClaims{

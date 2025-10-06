@@ -12,14 +12,16 @@ import (
 )
 
 type SimpleMailService struct {
-	config *MailConfig
-	logger logger.Logger
+	config   *MailConfig
+	jobQueue chan Message
+	logger   logger.Logger
 }
 
-func NewSimpleMailService(config *MailConfig) *SimpleMailService {
+func NewSimpleMailService(config *MailConfig, jobQueue chan Message) *SimpleMailService {
 	return &SimpleMailService{
-		config: config,
-		logger: *logger.NewLogger("Mail Service"),
+		config:   config,
+		jobQueue: jobQueue,
+		logger:   *logger.NewLogger("Mail Service"),
 	}
 }
 
@@ -101,4 +103,8 @@ func (m *SimpleMailService) SendHTML(msg Message) error {
 
 	m.logger.Info(context.Background(), "SendHTML", "Send email successfully")
 	return nil
+}
+
+func (m *SimpleMailService) SendHTMLAsync(msg Message) {
+	m.jobQueue <- msg
 }

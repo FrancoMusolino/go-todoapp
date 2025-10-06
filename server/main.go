@@ -24,7 +24,7 @@ func main() {
 	// Mailing
 	mailingJobQueue := make(chan mailing.Message)
 	defer close(mailingJobQueue)
-	go startMailing(mailingJobQueue)
+	mailingService := startMailing(mailingJobQueue)
 
 	// DB
 	gormDB, dbConnection := db.NewDatabase()
@@ -43,7 +43,7 @@ func main() {
 	// Init Services
 	userService := services.NewUserService(userRepo)
 	todoService := services.NewTodoService(todoRepo)
-	authService := services.NewAuthService(userService, userRepo)
+	authService := services.NewAuthService(userService, userRepo, mailingService)
 
 	// Init Route Handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -57,7 +57,7 @@ func main() {
 	}
 }
 
-func startMailing(mailingJobQueue chan mailing.Message) {
+func startMailing(mailingJobQueue chan mailing.Message) mailing.IMailService {
 	numWorkers := 3
 	mailingResultsChan := make(chan error)
 
@@ -73,6 +73,7 @@ func startMailing(mailingJobQueue chan mailing.Message) {
 			FromAddress: utils.GetEnv("FROM_ADDRESS"),
 			FromName:    utils.GetEnv("FROM_NAME"),
 		},
+		mailingJobQueue,
 	)
 
 	mailingDispatcher := mailing.NewMailingDispatcher(
@@ -90,4 +91,6 @@ func startMailing(mailingJobQueue chan mailing.Message) {
 			}
 		}
 	}()
+
+	return mailingService
 }
