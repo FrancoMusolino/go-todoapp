@@ -26,6 +26,10 @@ docker-dev:
 	@echo "Building Docker image..."
 	@docker compose --profile dev up -d 
 
+docker-stop:
+	@echo "Stopping Docker containers..."
+	@docker compose --profile dev stop
+
 # # Live Reload
 # watch:
 #     if not exist "$(GOPATH)\bin\air.exe" (

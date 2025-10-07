@@ -82,7 +82,7 @@ func (r *UserRepo) CreateVerificationCode(code *models.VerificationCode) error {
 	return err
 }
 
-func (r *UserRepo) GetLastVerificationCode(userID string) (*models.VerificationCode, error) {
+func (r *UserRepo) GetLastVerificationCode(userID uuid.UUID) (*models.VerificationCode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
 	defer cancel()
 
@@ -106,6 +106,6 @@ func (r *UserRepo) VerifyUser(userID uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), db.DBOperationTiemout)
 	defer cancel()
 
-	_, err := gorm.G[schema.VerificationCode](r.client).Where("user_id = ?", userID.String()).Update(ctx, "verified", true)
+	_, err := gorm.G[schema.User](r.client).Where("id = ?", userID.String()).Update(ctx, "verified", true)
 	return err
 }

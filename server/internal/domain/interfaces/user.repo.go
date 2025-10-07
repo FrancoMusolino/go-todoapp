@@ -10,6 +10,6 @@ type IUserRepo interface {
 	GetByEmail(email string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 	CreateVerificationCode(code *models.VerificationCode) error
-	GetLastVerificationCode(userID string) (*models.VerificationCode, error)
+	GetLastVerificationCode(userID uuid.UUID) (*models.VerificationCode, error)
 	VerifyUser(userID uuid.UUID) error
 }

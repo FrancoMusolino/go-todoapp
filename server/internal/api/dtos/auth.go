@@ -16,3 +16,8 @@ type LoginResponseDto struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
 }
+
+type VerifyUserDto struct {
+	Email string `json:"email" validate:"required,email"`
+	Code  uint   `json:"code" validate:"required,gt=0"`
+}

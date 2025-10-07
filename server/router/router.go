@@ -30,6 +30,7 @@ func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHa
 	r.Route("/api/auth", func(u chi.Router) {
 		u.Post("/register", authHandler.Register)
 		u.Post("/login", authHandler.Login)
+		u.Post("/verify-user", authHandler.VerifyUser)
 	})
 
 	r.Route("/api/todos", func(r chi.Router) {

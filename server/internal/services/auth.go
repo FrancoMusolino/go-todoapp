@@ -105,3 +105,34 @@ func (s *AuthService) Login(ctx context.Context, req dtos.LoginDto) (*dtos.Login
 		Token:    signed,
 	}, nil
 }
+
+func (s *AuthService) VerifyUser(ctx context.Context, req dtos.VerifyUserDto) error {
+	user, err := s.userRepo.GetByEmail(req.Email)
+	if err != nil {
+		return errors.New("Cannot verify user")
+	}
+
+	if user.IsVerified() {
+		return errors.New("User has been already verified")
+	}
+
+	code, err := s.userRepo.GetLastVerificationCode(user.ID)
+	if err != nil {
+		return errors.New("Cannot verify user")
+	}
+
+	if !code.SafeCompare(utils.UintToTextBytes(req.Code)) {
+		return errors.New("Invalid code")
+	}
+
+	if code.IsExpired() {
+		return errors.New("Verification code has expired")
+	}
+
+	err = s.userRepo.VerifyUser(user.ID)
+	if err != nil {
+		return errors.New("Cannot verify user")
+	}
+
+	return nil
+}
