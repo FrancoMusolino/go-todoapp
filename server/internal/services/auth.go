@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"time"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/dtos"
@@ -39,26 +38,19 @@ func NewAuthService(userService *UserService, userRepo interfaces.IUserRepo, mai
 	}
 }
 
-func (as *AuthService) Register(ctx context.Context, req dtos.RegisterUserDto) (*models.User, error) {
+func (s *AuthService) Register(ctx context.Context, req dtos.RegisterUserDto) (*models.User, error) {
 	if !utils.PasswordMatchRegex(req.Password) {
 		return nil, errors.New("Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one number.")
 	}
 
-	user, err := as.userService.CreateUser(ctx, req)
+	user, err := s.userService.CreateUser(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	randCode := rand.Intn(900_000) + 100_000
-	expiresAt := time.Now().Add(10 * time.Minute)
-	code := models.VerificationCode{
-		Code:      uint(randCode),
-		UserID:    user.ID,
-		ExpiresAt: expiresAt,
-	}
-
-	as.userRepo.CreateVerificationCode(&code)
-	as.mailingService.SendHTMLAsync(mailing.Message{
+	code := models.NewVerificationCode(user.ID)
+	s.userRepo.CreateVerificationCode(code)
+	s.mailingService.SendHTMLAsync(mailing.Message{
 		ToAddresses: user.Email,
 		Subject:     "Verificación de Cuenta",
 		Body:        fmt.Sprintf("El código de verificación es: %d", code.Code),
@@ -113,7 +105,7 @@ func (s *AuthService) VerifyUser(ctx context.Context, req dtos.VerifyUserDto) er
 	}
 
 	if user.IsVerified() {
-		return errors.New("User has been already verified")
+		return errors.New("User already verified")
 	}
 
 	code, err := s.userRepo.GetLastVerificationCode(user.ID)
@@ -133,6 +125,27 @@ func (s *AuthService) VerifyUser(ctx context.Context, req dtos.VerifyUserDto) er
 	if err != nil {
 		return errors.New("Cannot verify user")
 	}
+
+	return nil
+}
+
+func (s *AuthService) ResendVerificationEmail(ctx context.Context, req dtos.ResendVerificationEmailDto) error {
+	user, err := s.userRepo.GetByEmail(req.Email)
+	if err != nil {
+		return errors.New("Cannot resend email")
+	}
+
+	if user.IsVerified() {
+		return errors.New("User already verified")
+	}
+
+	code := models.NewVerificationCode(user.ID)
+	s.userRepo.CreateVerificationCode(code)
+	s.mailingService.SendHTMLAsync(mailing.Message{
+		ToAddresses: user.Email,
+		Subject:     "Verificación de Cuenta",
+		Body:        fmt.Sprintf("El código de verificación es: %d", code.Code),
+	})
 
 	return nil
 }

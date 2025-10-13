@@ -19,10 +19,7 @@ const AUTH_ROUTER_MAX_REQUESTS_PER_MINUTE = 3
 func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHandler, userRepo interfaces.IUserRepo) http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer, middleware.RequestID, middleware.RealIP, middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000", "http://127.0.0.1:3000", "https://yappr.chat", "http://yappr.chat"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -46,6 +43,7 @@ func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHa
 		u.Post("/register", authHandler.Register)
 		u.Post("/login", authHandler.Login)
 		u.Post("/verify-user", authHandler.VerifyUser)
+		u.Post("/resend-verification-email", authHandler.ResendVerificationEmail)
 	})
 
 	r.Route("/api/todos", func(r chi.Router) {

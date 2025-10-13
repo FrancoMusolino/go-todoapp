@@ -21,3 +21,7 @@ type VerifyUserDto struct {
 	Email string `json:"email" validate:"required,email"`
 	Code  uint   `json:"code" validate:"required,gt=0"`
 }
+
+type ResendVerificationEmailDto struct {
+	Email string `json:"email" validate:"required,email"`
+}

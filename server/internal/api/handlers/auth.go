@@ -139,3 +139,41 @@ func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {
 	})
 	return
 }
+
+func (h *AuthHandler) ResendVerificationEmail(w http.ResponseWriter, r *http.Request) {
+	var req dtos.ResendVerificationEmailDto
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("JSON decode error: %v", err)
+		utils.WriteError(w, http.StatusBadRequest, "Invalid JSON format", nil)
+		return
+	}
+
+	if err := validate.Struct(req); err != nil {
+		res := utils.ApiResponse[any]{
+			Success: false,
+			Message: "Invalid body request",
+			Errors:  utils.MapValidationErrors(err.(validator.ValidationErrors)),
+		}
+
+		utils.WriteJson(w, http.StatusBadRequest, &res)
+		return
+	}
+
+	err := h.authService.ResendVerificationEmail(r.Context(), req)
+	if err != nil {
+		res := utils.ApiResponse[any]{
+			Success: false,
+			Message: err.Error(),
+		}
+
+		utils.WriteJson(w, http.StatusBadRequest, &res)
+		return
+	}
+
+	utils.WriteJson(w, http.StatusOK, &utils.ApiResponse[dtos.LoginResponseDto]{
+		Success: true,
+		Message: "Verification Email Resent",
+	})
+	return
+}
