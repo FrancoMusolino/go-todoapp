@@ -2,14 +2,19 @@ package router
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/FrancoMusolino/go-todoapp/internal/api/handlers"
 	"github.com/FrancoMusolino/go-todoapp/internal/domain/interfaces"
 	"github.com/FrancoMusolino/go-todoapp/middlewares"
+	"github.com/FrancoMusolino/go-todoapp/utils"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 )
+
+const AUTH_ROUTER_MAX_REQUESTS_PER_MINUTE = 3
 
 func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHandler, userRepo interfaces.IUserRepo) http.Handler {
 	r := chi.NewRouter()
@@ -28,6 +33,16 @@ func SetUpRouter(authHandler *handlers.AuthHandler, todoHandler *handlers.TodoHa
 	}))
 
 	r.Route("/api/auth", func(u chi.Router) {
+		u.Use(httprate.Limit(
+			AUTH_ROUTER_MAX_REQUESTS_PER_MINUTE,
+			time.Minute,
+			httprate.WithKeyFuncs(httprate.KeyByIP, httprate.KeyByEndpoint),
+			httprate.WithLimitHandler(func(w http.ResponseWriter, r *http.Request) {
+				utils.WriteError(w, http.StatusTooManyRequests, "Demasiados intentos. Por favor, vuelva en unos minutos", nil)
+				return
+			}),
+		))
+
 		u.Post("/register", authHandler.Register)
 		u.Post("/login", authHandler.Login)
 		u.Post("/verify-user", authHandler.VerifyUser)
